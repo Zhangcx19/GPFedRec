@@ -8,6 +8,7 @@ import random
 import copy
 from data import UserItemRatingDataset
 from torch.utils.data import DataLoader
+from torch.distributions.laplace import Laplace
 
 
 class Engine(object):
@@ -141,8 +142,7 @@ class Engine(object):
             # del round_participant_params[user]['embedding_user.weight']
             round_participant_params[user] = {}
             round_participant_params[user]['embedding_item.weight'] = copy.deepcopy(self.client_model_params[user]['embedding_item.weight'])
-            round_participant_params[user]['embedding_user.weight'] = copy.deepcopy(
-                self.client_model_params[user]['embedding_user.weight'])
+            round_participant_params[user]['embedding_item.weight'] += Laplace(0, self.config['dp']).expand(round_participant_params[user]['embedding_item.weight'].shape).sample()
         # aggregate client models in server side.
         self.aggregate_clients_params(round_participant_params)
         return participants
