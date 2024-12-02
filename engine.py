@@ -62,12 +62,7 @@ class Engine(object):
     def aggregate_clients_params(self, round_user_params):
         """receive client models' parameters in a round, aggregate them and store the aggregated result for server."""
         # construct the user relation graph via embedding similarity.
-        if self.config['construct_graph_source'] == 'item':
-            user_relation_graph = construct_user_relation_graph_via_item(round_user_params, self.config['num_items'],
-                                                            self.config['latent_dim'],
-                                                            self.config['similarity_metric'])
-        else:
-            user_relation_graph = construct_user_relation_graph_via_user(round_user_params,
+        user_relation_graph = construct_user_relation_graph_via_item(round_user_params, self.config['num_items'],
                                                             self.config['latent_dim'],
                                                             self.config['similarity_metric'])
         # select the top-k neighborhood for each user.
