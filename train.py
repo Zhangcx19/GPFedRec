@@ -16,7 +16,6 @@ parser.add_argument('--clients_sample_ratio', type=float, default=1.0)
 parser.add_argument('--clients_sample_num', type=int, default=0)
 parser.add_argument('--num_round', type=int, default=100)
 parser.add_argument('--local_epoch', type=int, default=1)
-parser.add_argument('--construct_graph_source', type=str, default='item')
 parser.add_argument('--neighborhood_size', type=int, default=0)
 parser.add_argument('--neighborhood_threshold', type=float, default=1.)
 parser.add_argument('--mp_layers', type=int, default=1)
@@ -37,8 +36,6 @@ parser.add_argument('--dp', type=float, default=0.)
 parser.add_argument('--use_cuda', type=bool, default=True)
 parser.add_argument('--device_id', type=int, default=0)
 parser.add_argument('--model_dir', type=str, default='checkpoints/{}_Epoch{}_HR{:.4f}_NDCG{:.4f}.model')
-parser.add_argument('--ind', type=int, default=0)
-parser.add_argument('--ps', type=str, default=None)
 args = parser.parse_args()
 
 # Model.
@@ -97,7 +94,6 @@ logging.info('Range of itemId is [{}, {}]'.format(rating.itemId.min(), rating.it
 sample_generator = SampleGenerator(ratings=rating)
 validate_data = sample_generator.validate_data
 test_data = sample_generator.test_data
-# np.save('model_parameter/' + str(config['ind']) + config['dataset'] + '-' + 'test_data-2.npy', test_data)
 
 hit_ratio_list = []
 ndcg_list = []
@@ -141,7 +137,6 @@ for round in range(config['num_round']):
     if val_hit_ratio >= best_val_hr:
         best_val_hr = val_hit_ratio
         final_test_round = round
-        # np.save('model_parameter/' + str(config['ind']) + config['dataset'] + '-' + 'client_param-2.npy', engine.client_model_params)
 
 current_time = datetime.datetime.now().strftime('%Y-%m-%d %H-%M-%S')
 str = current_time + '-' + 'layers: ' + str(config['layers']) + '-' + 'lr: ' + str(config['lr']) + '-' + \
@@ -151,20 +146,17 @@ str = current_time + '-' + 'layers: ' + str(config['layers']) + '-' + 'lr: ' + s
       'batch_size: ' + str(config['batch_size']) + '-' + 'hr: ' + str(hit_ratio_list[final_test_round]) + '-' \
       + 'ndcg: ' + str(ndcg_list[final_test_round]) + '-' + 'best_round: ' + str(final_test_round) + '-' + \
       'similarity_metric: ' + str(config['similarity_metric']) + '-' + 'neighborhood_threshold: ' + \
-      str(config['neighborhood_threshold']) + '-' + 'reg: ' + str(config['reg']) + '-' + 'ps: ' + str(config['ps']) + \
-      '-' + 'construct_graph_source: ' + str(config['construct_graph_source'])
-file_name = "sh_result/"+config['construct_graph_source']+'-'+config['dataset']+".txt"
+      str(config['neighborhood_threshold']) + '-' + 'reg: ' + str(config['reg'])
+file_name = "sh_result/"+'-'+config['dataset']+".txt"
 with open(file_name, 'a') as file:
     file.write(str + '\n')
 
 logging.info('fedgraph')
 logging.info('clients_sample_ratio: {}, lr_eta: {}, bz: {}, lr: {}, dataset: {}, layers: {}, negatives: {}, '
-             'neighborhood_size: {}, neighborhood_threshold: {}, mp_layers: {}, similarity_metric: {}, '
-             'construct_graph_source : {}'.
+             'neighborhood_size: {}, neighborhood_threshold: {}, mp_layers: {}, similarity_metric: {}'.
              format(config['clients_sample_ratio'], config['lr_eta'], config['batch_size'], config['lr'],
                     config['dataset'], config['layers'], config['num_negative'], config['neighborhood_size'],
-                    config['neighborhood_threshold'], config['mp_layers'], config['similarity_metric'],
-                    config['construct_graph_source']))
+                    config['neighborhood_threshold'], config['mp_layers'], config['similarity_metric']))
 
 logging.info('hit_list: {}'.format(hit_ratio_list))
 logging.info('ndcg_list: {}'.format(ndcg_list))
