@@ -58,19 +58,6 @@ def construct_user_relation_graph_via_item(round_user_params, item_num, latent_d
         return -adj
 
 
-def construct_user_relation_graph_via_user(round_user_params, latent_dim, similarity_metric):
-    # prepare the user embedding array.
-    user_embedding = np.zeros((len(round_user_params), latent_dim), dtype='float32')
-    for user in round_user_params.keys():
-        user_embedding[user] = copy.deepcopy(round_user_params[user]['embedding_user.weight'].numpy())
-    # construct the user relation graph.
-    adj = pairwise_distances(user_embedding, metric=similarity_metric)
-    if similarity_metric == 'cosine':
-        return adj
-    else:
-        return -adj
-
-
 def select_topk_neighboehood(user_realtion_graph, neighborhood_size, neighborhood_threshold):
     topk_user_relation_graph = np.zeros(user_realtion_graph.shape, dtype='float32')
     if neighborhood_size > 0:
